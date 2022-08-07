@@ -2,7 +2,7 @@
 QR Code generator for esp-idf.   
 You can generate any QR code.   
 
-I used [this](https://github.com/nayuki/QR-Code-generator) as components. It's GREAT WORK.   
+This project use [this](https://github.com/nayuki/QR-Code-generator) as components. It's a GREAT job.   
 
 # Installation overview
 1. In this project directory, create a components directory.
