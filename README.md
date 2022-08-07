@@ -51,7 +51,7 @@ You can use the mDNS hostname instead of the IP address.
 
 ## HTTP Server Setting
 
-![config-http](https://user-images.githubusercontent.com/6020549/183276684-676d6dcf-76c1-4b0a-b069-39bbe94fd38b.jpg)
+![config-http](https://user-images.githubusercontent.com/6020549/183277176-2ed5a850-d339-43d4-835f-a00ec021e661.jpg)
 
 # How to use
 Open your brouser, and put address in address bar.   
