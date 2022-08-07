@@ -67,7 +67,7 @@ After waiting for a while, a QR code will appear.
 # How to browse image data using built-in http server   
 Even if there are image files in SPIFFS, the esp-idf http server does not support this:   
 ```
-httpd_resp_sendstr_chunk(req, "<img src=\"/spiffs/picture.bmp\">");
+httpd_resp_sendstr_chunk(req, "<img src=\"/spiffs/qr-code.bmp\">");
 ```
 
 You need to convert the image file to base64 string.   
@@ -77,12 +77,6 @@ httpd_resp_sendstr_chunk(req, (char *)BASE64_ENCODE_STRING);
 httpd_resp_sendstr_chunk(req, "\">");
 ```
 
-Images in png format are stored in the image folder.   
-Images in base64 format are stored in the html folder.   
-I converted using the base64 command.   
-```
-$ base64 image/ESP-IDF.png > html/ESP-IDF.txt
-```
 
 # Reference
 https://github.com/nopnop2002/esp-idf-web-form
