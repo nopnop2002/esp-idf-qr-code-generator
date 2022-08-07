@@ -1,5 +1,5 @@
 # esp-idf-qr-code-generator
-QR Code generator for esp-idf.
+QR Code generator for esp-idf.   
 You can generate any QR code.   
 
 I used [this](https://github.com/nayuki/QR-Code-generator) as components. It's GREAT WORK.   
@@ -10,7 +10,6 @@ I used [this](https://github.com/nayuki/QR-Code-generator) as components. It's G
 2. In the components directory, clone QR-Code-generator:
 ```
 git clone https://github.com/nayuki/QR-Code-generator
-
 ```
 
 3. In the new QR-Code-generator directory, create a CMakeLists.txt file containing:
@@ -68,12 +67,12 @@ After waiting for a while, a QR code will appear.
 # How to browse image data using built-in http server   
 Even if there are image files in SPIFFS, the esp-idf http server does not support this:   
 ```
-httpd_resp_sendstr_chunk(req, "<img src=\"/spiffs/picture.png\">");
+httpd_resp_sendstr_chunk(req, "<img src=\"/spiffs/picture.bmp\">");
 ```
 
 You need to convert the image file to base64 string.   
 ```
-httpd_resp_sendstr_chunk(req, "<img src=\"data:image/png;base64,");
+httpd_resp_sendstr_chunk(req, "<img src=\"data:image/bmp;base64,");
 httpd_resp_sendstr_chunk(req, (char *)BASE64_ENCODE_STRING);
 httpd_resp_sendstr_chunk(req, "\">");
 ```
