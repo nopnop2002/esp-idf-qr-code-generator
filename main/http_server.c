@@ -291,7 +291,7 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 	char* base_path = (char *)req->user_ctx;
 	ESP_LOGI(__FUNCTION__, "base_path=[%s]", base_path);
 	char key[64];
-	char parameter[128];
+	char parameter[256];
 	esp_err_t err;
 
 	// Send HTML header
@@ -302,48 +302,46 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 	httpd_resp_sendstr_chunk(req, "<body>");
 	httpd_resp_sendstr_chunk(req, "<h1>QR Code Generator using ESP-IDF</h1>");
 
-	strcpy(key, "submit");
-	char text1[32] = {0};
-	//char text2[32] = {0};
+	strcpy(key, "bmpText");
 	err = load_key_value(key, parameter, sizeof(parameter));
-	ESP_LOGI(__FUNCTION__, "%s=%d", key, err);
-	if (err == ESP_OK) {
-		ESP_LOGI(__FUNCTION__, "parameter=[%s]", parameter);
-		find_value("text1=", parameter, text1);
-		//find_value("text2=", parameter, text2);
-	}
+	ESP_LOGI(__FUNCTION__, "load_key_value %s=%d", key, err);
+	assert (err == ESP_OK);
+	ESP_LOGI(__FUNCTION__, "parameter=%d [%s]", strlen(parameter), parameter);
 
 	httpd_resp_sendstr_chunk(req, "<h2>input text</h2>");
 	httpd_resp_sendstr_chunk(req, "<form method=\"post\" action=\"/post\">");
-	httpd_resp_sendstr_chunk(req, "<input type=\"text\" name=\"text1\" size=\"40\" value=\"");
-	if (strlen(text1)) httpd_resp_sendstr_chunk(req, text1);
+	httpd_resp_sendstr_chunk(req, "<input type=\"text\" name=\"text\" size=\"80\" value=\"");
+	if (strlen(parameter)) httpd_resp_sendstr_chunk(req, parameter);
 	httpd_resp_sendstr_chunk(req, "\">");
 	httpd_resp_sendstr_chunk(req, "<br>");
 	httpd_resp_sendstr_chunk(req, "<input type=\"submit\" name=\"submit\" value=\"submit\">");
 
 #if 0
-	err = load_key_value(key, parameter, sizeof(parameter));
-	ESP_LOGI(__FUNCTION__, "%s=%d", key, err);
-	if (err == ESP_OK) {
-		ESP_LOGI(__FUNCTION__, "parameter=[%s]", parameter);
-		httpd_resp_sendstr_chunk(req, key);
-		httpd_resp_sendstr_chunk(req, ":");
-		httpd_resp_sendstr_chunk(req, parameter);
-	}
+	httpd_resp_sendstr_chunk(req, key);
+	httpd_resp_sendstr_chunk(req, ":");
+	httpd_resp_sendstr_chunk(req, parameter);
 #endif
+
 	httpd_resp_sendstr_chunk(req, "</form><br>");
 
-	strcpy(key, "bmpfile");
-	char bmpfile[64] = {0};
+	strcpy(key, "bmpError");
 	err = load_key_value(key, parameter, sizeof(parameter));
-	ESP_LOGI(__FUNCTION__, "%s=%d", key, err);
-	if (err == ESP_OK) {
-		ESP_LOGI(__FUNCTION__, "parameter=[%s]", parameter);
-		if (strlen(parameter) > 0) {
-			find_value("file=", parameter, bmpfile);
-			ESP_LOGI(__FUNCTION__, "bmpfile=[%s]", bmpfile);
-			ImageToHtml(req, bmpfile, "bmp");
-		}
+	ESP_LOGI(__FUNCTION__, "load_key_value %s=%d", key, err);
+	assert (err == ESP_OK);
+	ESP_LOGI(__FUNCTION__, "parameter=%d [%s]", strlen(parameter), parameter);
+	if (strlen(parameter) > 0) {
+		httpd_resp_sendstr_chunk(req, "<br>");
+		httpd_resp_sendstr_chunk(req, parameter);
+		httpd_resp_sendstr_chunk(req, "<br>");
+	}
+
+	strcpy(key, "bmpFile");
+	err = load_key_value(key, parameter, sizeof(parameter));
+	ESP_LOGI(__FUNCTION__, "load_key_value %s=%d", key, err);
+	assert (err == ESP_OK);
+	ESP_LOGI(__FUNCTION__, "parameter=%d [%s]", strlen(parameter), parameter);
+	if (strlen(parameter) > 0) {
+		ImageToHtml(req, parameter, "bmp");
 	}
 
 #if 0
@@ -394,40 +392,55 @@ static esp_err_t root_post_handler(httpd_req_t *req)
 
 	char *_buf = malloc(strlen(buf)+1);
 	urldecode2(_buf, buf);
-	ESP_LOGI(__FUNCTION__, "_buf=[%s]", _buf);
+	ESP_LOGI(__FUNCTION__, "_buf=[%s] len=%d", _buf, strlen(_buf));
 	free(buf);
 
 	/* Create QR Generate Task */
 	PARAMETER_t param;
-	find_value("text1=", _buf, param.qrText);
-	ESP_LOGI(__FUNCTION__, "param.qrText=[%s]", param.qrText);
-	sprintf(param.qrFile, "%s/qrcode.bmp", base_path);
-	param.taskHandle = xTaskGetCurrentTaskHandle();
-	xTaskCreate(&qrcode, "QRCODE", 1024*10, (void *)&param, 2, NULL);
-	ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
-	ESP_LOGI(__FUNCTION__, "ulTaskNotifyTake");
-	
-	// save key & value to NVS
-	char key[64];
-	char value[64];
-	find_value("submit=", _buf, key);
-	ESP_LOGI(__FUNCTION__, "key=[%s]", key);
-	strcpy(value, _buf);
-	ESP_LOGI(__FUNCTION__, "value=[%s]", value);
+	char *find = strstr(_buf,"submit=");
+	long pos = find - _buf;
+	ESP_LOGI(__FUNCTION__, "pos=%d", pos);
 	esp_err_t err;
-	err = save_key_value(key, value);
-	if (err != ESP_OK) {
-		ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
-	}
+	if (pos < 256) {
+		memset(param.qrText, 0, sizeof(param.qrText));
+		strncpy(param.qrText, &_buf[5], pos-6);
+		ESP_LOGI(__FUNCTION__, "param.qrText=[%s]", param.qrText, strlen(param.qrText));
+	
+		sprintf(param.qrFile, "%s/qrcode.bmp", base_path);
+		param.taskHandle = xTaskGetCurrentTaskHandle();
+		xTaskCreate(&qrcode, "QRCODE", 1024*10, (void *)&param, 2, NULL);
+		ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
+		ESP_LOGI(__FUNCTION__, "ulTaskNotifyTake");
+	
+		// save key & value to NVS
+		err = save_key_value("bmpText", param.qrText);
+		if (err != ESP_OK) {
+			ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
+		}
 
-	strcpy(key, "bmpfile");
-	sprintf(value, "file=%s", param.qrFile);
-	err = save_key_value(key, value);
-	if (err != ESP_OK) {
-		ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
-	}
+		err = save_key_value("bmpFile", param.qrFile);
+		if (err != ESP_OK) {
+			ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
+		}
 
+		err = save_key_value("bmpError", "");
+		if (err != ESP_OK) {
+			ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
+		}
+	} else {
+		err = save_key_value("bmpFile", "");
+		if (err != ESP_OK) {
+			ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
+		}
+
+		err = save_key_value("bmpError", "input text is too long");
+		if (err != ESP_OK) {
+			ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
+		}
+		ESP_LOGE(__FUNCTION__, "input text is too long");
+	}
 	free(_buf);
+
 
 	/* Redirect onto root to see the updated file list */
 	httpd_resp_set_status(req, "303 See Other");
@@ -503,12 +516,17 @@ void http_server_task(void *pvParameters)
 	sprintf(url, "http://%s:%d", task_parameter, CONFIG_WEB_PORT);
 
 	esp_err_t err;
-	err = save_key_value("submit", "text1=https://github.com/nopnop2002/&submit=submit");
+	err = save_key_value("bmpText", "https://github.com/nopnop2002/");
 	if (err != ESP_OK) {
 		ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
 	}
 
-	err = save_key_value("bmpfile", "");
+	err = save_key_value("bmpFile", "");
+	if (err != ESP_OK) {
+		ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
+	}
+
+	err = save_key_value("bmpError", "");
 	if (err != ESP_OK) {
 		ESP_LOGE(__FUNCTION__, "Error (%s) saving to NVS", esp_err_to_name(err));
 	}
