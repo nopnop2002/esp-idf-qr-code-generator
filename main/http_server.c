@@ -8,6 +8,7 @@
 */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -193,7 +194,7 @@ esp_err_t ImageToHtml(httpd_req_t *req, char * localFileName, char * type)
 
 	ESP_LOGI(__FUNCTION__, "%s exist st.st_size=%ld", localFileName, st.st_size);
 	int32_t base64Size = calcBase64EncodedSize(st.st_size);
-	ESP_LOGI(__FUNCTION__, "base64Size=%d", base64Size);
+	ESP_LOGI(__FUNCTION__, "base64Size=%"PRIi32, base64Size);
 
 	/* Send HTML file header */
 	httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
@@ -399,12 +400,12 @@ static esp_err_t root_post_handler(httpd_req_t *req)
 	PARAMETER_t param;
 	char *find = strstr(_buf,"submit=");
 	long pos = find - _buf;
-	ESP_LOGI(__FUNCTION__, "pos=%d", pos);
+	ESP_LOGI(__FUNCTION__, "pos=%ld", pos);
 	esp_err_t err;
 	if (pos < 256) {
 		memset(param.qrText, 0, sizeof(param.qrText));
 		strncpy(param.qrText, &_buf[5], pos-6);
-		ESP_LOGI(__FUNCTION__, "param.qrText=[%s]", param.qrText, strlen(param.qrText));
+		ESP_LOGI(__FUNCTION__, "param.qrText=[%s]", param.qrText);
 	
 		sprintf(param.qrFile, "%s/qrcode.bmp", base_path);
 		param.taskHandle = xTaskGetCurrentTaskHandle();

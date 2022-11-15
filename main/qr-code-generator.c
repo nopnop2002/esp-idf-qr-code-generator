@@ -9,6 +9,7 @@
 */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/unistd.h>
@@ -46,9 +47,9 @@ static esp_err_t makeQr(char * file, const uint8_t qrcode[]) {
 	int border = 4;
 
 	uint32_t imageSize = (size+border*2) * 8;
-	ESP_LOGI(__FUNCTION__, "imageSize=%d", imageSize);
+	ESP_LOGI(__FUNCTION__, "imageSize=%"PRIu32, imageSize);
 	uint32_t rowSize =((imageSize + 31 ) / 32 ) * 4;
-	ESP_LOGI(__FUNCTION__, "rowSize=%d", rowSize);
+	ESP_LOGI(__FUNCTION__, "rowSize=%"PRIu32, rowSize);
 	
 	// open output file
 	esp_err_t ret;
@@ -80,7 +81,7 @@ static esp_err_t makeQr(char * file, const uint8_t qrcode[]) {
 	result->dib.depth=1;
 	result->dib.compress_type=0;
 	result->dib.bmp_bytesz=rowSize * result->dib.height;
-	ESP_LOGI(__FUNCTION__, "result->dib.bmp_bytesz=%d", result->dib.bmp_bytesz);
+	ESP_LOGI(__FUNCTION__, "result->dib.bmp_bytesz=%"PRIu32, result->dib.bmp_bytesz);
 
 	result->dib.hres=0xec3;
 	result->dib.vres=0xec3;
@@ -96,7 +97,7 @@ static esp_err_t makeQr(char * file, const uint8_t qrcode[]) {
 	result->dib.ggamma=0x00;
 	result->dib.bgamma=0x00;
 	result->header.filesz=bmp_header_sz+bmp_dib_v4_header_sz+result->dib.bmp_bytesz;
-	ESP_LOGI(__FUNCTION__, "result->header.filesz=%d", result->header.filesz);
+	ESP_LOGI(__FUNCTION__, "result->header.filesz=%"PRIu32, result->header.filesz);
 	
 
 	// write bitmap file header
@@ -149,7 +150,7 @@ static esp_err_t makeQr(char * file, const uint8_t qrcode[]) {
 		// write the same value to 8 rows
 		for (int _row=0;_row<8;_row++) {
 			int pos = result->header.offset + (result->dib.height - 1 - row) * rowSize;
-			ESP_LOGD(__FUNCTION__, "pos=%d row=%d y=%d size + border=%d", pos, result->dib.height - 1 - row, y, size + border);
+			ESP_LOGD(__FUNCTION__, "pos=%d row=%"PRIu32" y=%d size + border=%d", pos, result->dib.height - 1 - row, y, size + border);
 			fseek(fp, pos, SEEK_SET);
 			ret = fwrite(sdbuffer, 1, rowSize, fp);
 			assert(ret == rowSize);
@@ -184,7 +185,7 @@ static void showBMP(char * file) {
 	}
 	ret = fread(&result->header.filesz, 4, 1 , fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->header.filesz=%d", result->header.filesz);
+	ESP_LOGI(__FUNCTION__, "result->header.filesz=%"PRIu32, result->header.filesz);
 	ret = fread(&result->header.creator1, 2, 1, fp);
 	assert(ret == 1);
 	ESP_LOGI(__FUNCTION__, "result->header.creator1=0x%x", result->header.creator1);
@@ -193,18 +194,18 @@ static void showBMP(char * file) {
 	ESP_LOGI(__FUNCTION__, "result->header.creator2=0x%x", result->header.creator2);
 	ret = fread(&result->header.offset, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->header.offset=%d", result->header.offset);
+	ESP_LOGI(__FUNCTION__, "result->header.offset=%"PRIu32, result->header.offset);
 
 	// read dib header
 	ret = fread(&result->dib.header_sz, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.header_sz=%d", result->dib.header_sz);
+	ESP_LOGI(__FUNCTION__, "result->dib.header_sz=%"PRIu32, result->dib.header_sz);
 	ret = fread(&result->dib.width, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.width=%d", result->dib.width);
+	ESP_LOGI(__FUNCTION__, "result->dib.width=%"PRIu32, result->dib.width);
 	ret = fread(&result->dib.height, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.height=%d", result->dib.height);
+	ESP_LOGI(__FUNCTION__, "result->dib.height=%"PRIu32, result->dib.height);
 	ret = fread(&result->dib.nplanes, 2, 1, fp);
 	assert(ret == 1);
 	ESP_LOGI(__FUNCTION__, "result->dib.nplanes=%d", result->dib.nplanes);
@@ -213,29 +214,29 @@ static void showBMP(char * file) {
 	ESP_LOGI(__FUNCTION__, "result->dib.depth=%d", result->dib.depth);
 	ret = fread(&result->dib.compress_type, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.compress_type=%d", result->dib.compress_type);
+	ESP_LOGI(__FUNCTION__, "result->dib.compress_type=%"PRIu32, result->dib.compress_type);
 	ret = fread(&result->dib.bmp_bytesz, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.bmp_bytesz=%d", result->dib.bmp_bytesz);
+	ESP_LOGI(__FUNCTION__, "result->dib.bmp_bytesz=%"PRIu32, result->dib.bmp_bytesz);
 	ret = fread(&result->dib.hres, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.hres=%d", result->dib.hres);
+	ESP_LOGI(__FUNCTION__, "result->dib.hres=%"PRIu32, result->dib.hres);
 	ret = fread(&result->dib.vres, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.vres=%d", result->dib.vres);
+	ESP_LOGI(__FUNCTION__, "result->dib.vres=%"PRIu32, result->dib.vres);
 	ret = fread(&result->dib.ncolors, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.ncolors=%d", result->dib.ncolors);
+	ESP_LOGI(__FUNCTION__, "result->dib.ncolors=%"PRIu32, result->dib.ncolors);
 	ret = fread(&result->dib.nimpcolors, 4, 1, fp);
 	assert(ret == 1);
-	ESP_LOGI(__FUNCTION__, "result->dib.nimpcolors=%d", result->dib.nimpcolors);
+	ESP_LOGI(__FUNCTION__, "result->dib.nimpcolors=%"PRIu32, result->dib.nimpcolors);
 
 	uint32_t rowSize = result->dib.bmp_bytesz / result->dib.height;
-	ESP_LOGI(__FUNCTION__ ,"rowSize=%d", rowSize);
+	ESP_LOGI(__FUNCTION__ ,"rowSize=%"PRIi32, rowSize);
 
 	for (int row=0; row<result->dib.height; row++) { // For each scanline...
 		int pos = result->header.offset + (result->dib.height - 1 - row) * rowSize;
-		ESP_LOGI(__FUNCTION__, "pos=%d row=%d", pos, result->dib.height - 1 - row);
+		ESP_LOGI(__FUNCTION__, "pos=%d row=%"PRIi32, pos, result->dib.height - 1 - row);
 	}
 
 	free(result);
