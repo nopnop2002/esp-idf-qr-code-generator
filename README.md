@@ -20,7 +20,7 @@ idf_component_register(SRCS "c/qrcodegen.c" INCLUDE_DIRS "c/")
 4. Compile this project.
 
 # Software requiment
-esp-idf ver4.4/v5.0.   
+esp-idf v4.4/v5.0.   
 This is because this version supports ESP32-C3.
 
 
