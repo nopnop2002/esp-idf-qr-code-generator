@@ -37,10 +37,6 @@ idf.py menuconfig
 idf.py flash monitor
 ```
 
-# Software requiment
-esp-idf ver4.4 or later.   
-This is because this version supports ESP32-C3.
-
 # Application Setting
 
 ![config-top](https://user-images.githubusercontent.com/6020549/183276602-6abd8b3b-4816-4f67-91cb-b3fc76439381.jpg)
