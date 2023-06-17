@@ -21,7 +21,7 @@ idf_component_register(SRCS "c/qrcodegen.c" INCLUDE_DIRS "c/")
 
 # Software requiment
 ESP-IDF V4.4/V5.0.   
-ESP-IDF V5 is required when using ESP32-C2.   
+ESP-IDF V5.0 is required when using ESP32-C2.   
 
 # Installation
 ```
