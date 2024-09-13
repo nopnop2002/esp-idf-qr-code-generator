@@ -32,7 +32,7 @@ cd components/
 git clone https://github.com/nayuki/QR-Code-generator
 echo "idf_component_register(SRCS \"c/qrcodegen.c\" INCLUDE_DIRS \"c/\")" > QR-Code-generator/CMakeLists.txt
 cd ..
-idf.py set-target {esp32/esp32s2/esp32s3/esp32c2/esp32c3}
+idf.py set-target {esp32/esp32s2/esp32s3/esp32c2/esp32c3/esp32c6}
 idf.py menuconfig
 idf.py flash monitor
 ```
