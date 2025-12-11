@@ -399,8 +399,8 @@ static esp_err_t root_post_handler(httpd_req_t *req)
 	/* Create QR Generate Task */
 	PARAMETER_t param;
 	char *find = strstr(_buf,"submit=");
-	long pos = find - _buf;
-	ESP_LOGI(__FUNCTION__, "pos=%ld", pos);
+	int pos = find - _buf;
+	ESP_LOGI(__FUNCTION__, "pos=%d", pos);
 	esp_err_t err;
 	if (pos < 256) {
 		memset(param.qrText, 0, sizeof(param.qrText));
