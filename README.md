@@ -19,7 +19,7 @@ idf_component_register(SRCS "c/qrcodegen.c" INCLUDE_DIRS "c/")
 
 4. Compile this project.
 
-# Software requiment
+# Software requirements
 ESP-IDF V5.0 or later.   
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
 ESP-IDF V5.1 is required when using ESP32-C6.   
